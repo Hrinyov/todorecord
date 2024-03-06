@@ -7,7 +7,7 @@ import {
   setFilter,
 } from "../../store/features/todo-slice/todo-slice";
 import { nanoid } from "@reduxjs/toolkit";
-import { TodoFilter } from "../todo-list.types";
+import { TodoFilter } from "./todo-list.types";
 import { selectFilteredTodos } from "../../store/features/todo-slice/selectors";
 
 export const ToDoList: FC = () => {
