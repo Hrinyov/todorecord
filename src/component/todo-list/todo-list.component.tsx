@@ -1,4 +1,9 @@
 import { FC, useState } from "react";
+import Classes from "./todo-list.module.css";
+import {
+  TODO_ITEM_MAX_LENGTH,
+  DEFAULT_VALUE,
+} from "../../utils/constants/constants";
 import { Button, Input, List, Radio, Typography, Checkbox } from "antd";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
@@ -11,15 +16,18 @@ import { TodoFilter } from "./todo-list.types";
 import { selectFilteredTodos } from "../../store/features/todo-slice/selectors";
 
 export const ToDoList: FC = () => {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(DEFAULT_VALUE);
   const todoList = useAppSelector((state) => state.todo.todos);
   const filter = useAppSelector((state) => state.todo.filter);
   const dispatch = useAppDispatch();
 
   const handleAddTodo = () => {
-    if (input.trim().length > 0 && input.trim().length <= 15) {
+    if (
+      input.trim().length > 0 &&
+      input.trim().length <= TODO_ITEM_MAX_LENGTH
+    ) {
       dispatch(addTodo({ id: nanoid(), text: input.trim() }));
-      setInput("");
+      setInput(DEFAULT_VALUE);
     }
   };
 
@@ -33,10 +41,12 @@ export const ToDoList: FC = () => {
   const currentCount = todoList.length - completedCount;
 
   return (
-    <div className="todo-list-container">
-      <Typography.Text className="todo-list-title">ToDo Hub</Typography.Text>
+    <div className={Classes["todo-list-container"]}>
+      <Typography.Text className={Classes["todo-list-title"]}>
+        ToDo Hub
+      </Typography.Text>
 
-      <Input.Group compact className="input-group">
+      <Input.Group compact className={Classes["input-group"]}>
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -44,14 +54,14 @@ export const ToDoList: FC = () => {
           placeholder="Enter a new task"
           count={{
             show: true,
-            max: 15,
+            max: TODO_ITEM_MAX_LENGTH,
           }}
-          className="add-todo-input"
+          className={Classes["add-todo-input"]}
         />
         <Button
           type="primary"
           onClick={handleAddTodo}
-          className="add-todo-button"
+          className={Classes["add-todo-button"]}
         >
           Add
         </Button>
@@ -60,11 +70,11 @@ export const ToDoList: FC = () => {
       <Radio.Group
         onChange={(e) => handleFilterChange(e.target.value as TodoFilter)}
         value={filter}
-        className="radio-group"
+        className={Classes["radio-group"]}
       >
-        <Radio.Button value="all">All</Radio.Button>
-        <Radio.Button value="completed">Completed</Radio.Button>
-        <Radio.Button value="current">Current</Radio.Button>
+        <Radio.Button value={TodoFilter.All}>All</Radio.Button>
+        <Radio.Button value={TodoFilter.Completed}>Completed</Radio.Button>
+        <Radio.Button value={TodoFilter.Current}>Current</Radio.Button>
       </Radio.Group>
 
       <List
@@ -79,14 +89,14 @@ export const ToDoList: FC = () => {
                 onClick={(e) => e.stopPropagation()}
               />,
             ]}
-            className="list-item"
+            className={Classes["list-item"]}
           >
             {item.text}
           </List.Item>
         )}
       />
 
-      <div className="stats">
+      <div className={Classes.stats}>
         <Typography.Text>
           Completed: {completedCount} / Current: {currentCount}
         </Typography.Text>
