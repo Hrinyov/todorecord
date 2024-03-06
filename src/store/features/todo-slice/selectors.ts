@@ -1,14 +1,15 @@
 import { RootState } from "../../store";
+import { TodoFilter } from "./todo-slice.types";
 
 export const selectFilteredTodos = (state: RootState) => {
   const { todos, filter } = state.todo;
 
   switch (filter) {
-    case "completed":
+    case TodoFilter.Completed:
       return todos.filter((todo) => todo.completed);
-    case "current":
+    case TodoFilter.Current:
       return todos.filter((todo) => !todo.completed);
-    case "all":
+    case TodoFilter.All:
     default:
       return todos;
   }

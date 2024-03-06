@@ -1,21 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TodoState } from "./todo-slice.types";
-
-export type TodoFilter = "all" | "completed" | "current";
+import { TodoState, TodoFilter, NewTodoData, TodoId } from "./todo-slice.types";
 
 const initialState: TodoState = {
   todos: [],
-  filter: "all",
+  filter: TodoFilter.All,
 };
 
 const TodoSlice = createSlice({
   name: "todo",
   initialState,
   reducers: {
-    addTodo: (state, action: PayloadAction<{ id: string; text: string }>) => {
+    addTodo: (state, action: PayloadAction<NewTodoData>) => {
       state.todos.push({ ...action.payload, completed: false });
     },
-    toggleTodo: (state, action: PayloadAction<string>) => {
+    toggleTodo: (state, action: PayloadAction<TodoId>) => {
       const todo = state.todos.find((todo) => todo.id === action.payload);
       if (todo) {
         todo.completed = !todo.completed;
