@@ -3,3 +3,7 @@ export enum TodoFilter {
   Completed = "completed",
   Current = "current",
 }
+
+export type FormValues = {
+  newTodo: string;
+};

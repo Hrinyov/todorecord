@@ -1,10 +1,16 @@
-import { FC, useState } from "react";
-import Classes from "./todo-list.module.css";
+import { FC } from "react";
+import "./todo-list.css";
+import { TODO_ITEM_MAX_LENGTH } from "../../utils/constants/constants";
 import {
-  TODO_ITEM_MAX_LENGTH,
-  DEFAULT_VALUE,
-} from "../../utils/constants/constants";
-import { Button, Input, List, Radio, Typography, Checkbox } from "antd";
+  Form,
+  Button,
+  Input,
+  List,
+  Radio,
+  Typography,
+  Checkbox,
+  RadioChangeEvent,
+} from "antd";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
   addTodo,
@@ -12,27 +18,27 @@ import {
   setFilter,
 } from "../../store/features/todo-slice/todo-slice";
 import { nanoid } from "@reduxjs/toolkit";
-import { TodoFilter } from "./todo-list.types";
+import { TodoFilter, FormValues } from "./todo-list.types";
 import { selectFilteredTodos } from "../../store/features/todo-slice/selectors";
 
 export const ToDoList: FC = () => {
-  const [input, setInput] = useState(DEFAULT_VALUE);
+  const [form] = Form.useForm();
   const todoList = useAppSelector((state) => state.todo.todos);
   const filter = useAppSelector((state) => state.todo.filter);
   const dispatch = useAppDispatch();
 
-  const handleAddTodo = () => {
-    if (
-      input.trim().length > 0 &&
-      input.trim().length <= TODO_ITEM_MAX_LENGTH
-    ) {
-      dispatch(addTodo({ id: nanoid(), text: input.trim() }));
-      setInput(DEFAULT_VALUE);
-    }
+  const handleAddTodo = (values: FormValues) => {
+    dispatch(addTodo({ id: nanoid(), text: values.newTodo.trim() }));
+    form.resetFields();
   };
 
-  const handleFilterChange = (filter: TodoFilter) => {
-    dispatch(setFilter(filter));
+  const handleFilterChange = (event: RadioChangeEvent) => {
+    const filterValue = event.target.value as TodoFilter;
+    dispatch(setFilter(filterValue));
+  };
+
+  const handleBlur = () => {
+    form.resetFields(["newTodo"]);
   };
 
   const filteredList = useAppSelector(selectFilteredTodos);
@@ -41,36 +47,47 @@ export const ToDoList: FC = () => {
   const currentCount = todoList.length - completedCount;
 
   return (
-    <div className={Classes["todo-list-container"]}>
-      <Typography.Text className={Classes["todo-list-title"]}>
-        ToDo Hub
-      </Typography.Text>
+    <div className="todo-list-container">
+      <Typography.Text className="todo-list-title">ToDo Hub</Typography.Text>
 
-      <Input.Group compact className={Classes["input-group"]}>
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onPressEnter={handleAddTodo}
-          placeholder="Enter a new task"
-          count={{
-            show: true,
-            max: TODO_ITEM_MAX_LENGTH,
-          }}
-          className={Classes["add-todo-input"]}
-        />
-        <Button
-          type="primary"
-          onClick={handleAddTodo}
-          className={Classes["add-todo-button"]}
+      <Form
+        form={form}
+        onFinish={handleAddTodo}
+        layout="inline"
+        className="add-todo-input-form"
+      >
+        <Form.Item
+          name="newTodo"
+          rules={[
+            { required: true, message: "Please input your task!" },
+            {
+              max: TODO_ITEM_MAX_LENGTH,
+              message: `Task cannot exceed ${TODO_ITEM_MAX_LENGTH} characters`,
+            },
+          ]}
         >
-          Add
-        </Button>
-      </Input.Group>
+          <Input
+            placeholder="Enter a new task"
+            onPressEnter={() => form.submit()}
+            onBlur={handleBlur}
+            className="add-todo-input"
+            count={{
+              show: true,
+              max: TODO_ITEM_MAX_LENGTH,
+            }}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" className="add-todo-button">
+            Add
+          </Button>
+        </Form.Item>
+      </Form>
 
       <Radio.Group
-        onChange={(e) => handleFilterChange(e.target.value as TodoFilter)}
+        onChange={handleFilterChange}
         value={filter}
-        className={Classes["radio-group"]}
+        className="radio-group"
       >
         <Radio.Button value={TodoFilter.All}>All</Radio.Button>
         <Radio.Button value={TodoFilter.Completed}>Completed</Radio.Button>
@@ -89,14 +106,14 @@ export const ToDoList: FC = () => {
                 onClick={(e) => e.stopPropagation()}
               />,
             ]}
-            className={Classes["list-item"]}
+            className="list-item"
           >
             {item.text}
           </List.Item>
         )}
       />
 
-      <div className={Classes.stats}>
+      <div className="stats">
         <Typography.Text>
           Completed: {completedCount} / Current: {currentCount}
         </Typography.Text>
